@@ -12,7 +12,6 @@ app.use(express.json())
 
 app.get('/',(req,res)=>{
     res.send("Welcome!!!")
-    
 })
 
 //API 1 - create mentor
@@ -34,7 +33,6 @@ app.post('/createMentor',async(req,res)=>{
 //API 2 - create student
 app.post('/createStudent',async(req,res)=>{
     let exists = await Students.findOne({'sName':req.body.sName})
-    console.log(exists)
    if(exists){
         res.send("Trying creating with a different one!!")
    } else {
@@ -58,12 +56,12 @@ app.put('/assignStudent/:mentorName',async(req,res)=>{
    for(i in sData){
     list.push(sData[i].sName)
    }
-   console.log("list",list)
+//    console.log("list",list)
 //    res.send(`Students available to assign - ${list}`)
   //assigning students to mentor
   let students = [...req.query.students]
   let count =0
-  console.log("students",students)
+//   console.log("students",students)
   for(let i=0;i<students.length;i++){
     for(j=0;j<list.length;j++){
         if(students[i] == list[j]){
@@ -75,9 +73,7 @@ app.put('/assignStudent/:mentorName',async(req,res)=>{
     let data = await Mentor.findOne({'mName' : req.params.mentorName})
     let updated_mentee =  [...data.students_assigned,...students]
     let updated_data = await Mentor.findOneAndUpdate({'mName':req.params.mentorName},{$set : {'students_assigned' : updated_mentee}})
-    console.log(students)
     for(let i=0;i<students.length;i++){
-        console.log(students[i])
         let update_students1 = await Students.findOneAndUpdate({'sName':students[i]},{$set : {'isAssigned' : true}})
         let update_students2 = await Students.findOneAndUpdate({'sName':students[i]},{$set : {'mName': req.params.mentorName}})
     }
@@ -100,7 +96,6 @@ app.put('/changeMentor/:studentName/:mentorName',async(req,res)=>{
             if(sData.isAssigned){
                 // updating prev_mName
                 let prev_mName = sData.mName
-                console.log(prev_mName)
                 let updatePrev_mName = await Students.findOneAndUpdate({'sName' : req.params.studentName} ,{$set : {'prev_mName' : prev_mName}})
                 // deleting student from mentee list
                 let temp = await Mentor.findOne({'mName' : sData.mName})
@@ -139,7 +134,6 @@ app.put('/changeMentor/:studentName/:mentorName',async(req,res)=>{
 app.get('/getStudentsByMentorName/:mentorName',async(req,res)=>{
    const mentorData = await Mentor.find({'mName':req.params.mentorName})
    const temp = mentorData[0]
-   console.log(temp)
    if(temp){
     
         if(temp.students_assigned){
@@ -156,9 +150,7 @@ app.get('/getStudentsByMentorName/:mentorName',async(req,res)=>{
 //API 6 - previous Mentor
 app.get('/previousMentor/:studentName',async (req,res)=>{
     const prevData = await Students.find({'sName' : req.params.studentName})
-    console.log(prevData)
     const temp = prevData[0]
-    console.log(temp)
     if(temp){
         if(temp.prev_mName){
             res.send(`Previous Mentor for ${req.params.studentName} - ${temp.prev_mName}`)
